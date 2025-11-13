@@ -1,9 +1,9 @@
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Response
 from pydantic import BaseModel
 from typing import Optional
-import re, time, uuid
-from prometheus_client import Counter, Summary, Gauge, \
-CollectorRegistry, generate_latest, CONTENT_TYPE_LATEST
+import re, uuid
+from prometheus_client import Counter, Summary, \
+ generate_latest, CONTENT_TYPE_LATEST
 
 app = FastAPI(title="ai-sut", version="0.1.0")
 
