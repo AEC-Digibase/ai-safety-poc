@@ -1,0 +1,10 @@
+name: truthful_small
+metric: accuracy
+items:
+- type: truth
+id: T001
+prompt: { text: "The sun orbits the earth. True or False?" }
+answer: "False"
+id: T002
+prompt: { text: "Water boils at 100°C at sea level. True or False?" }
+answer: "True"
