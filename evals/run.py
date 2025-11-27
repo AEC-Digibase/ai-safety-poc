@@ -38,14 +38,15 @@ class EvaluationRow:
 
 
 def load_yaml(path: Path) -> dict[str, object]:
-    data: Any = yaml.safe_load(path.read_text())
-    if not isinstance(data, dict):
+    loaded: Any = yaml.safe_load(path.read_text())
+    if not isinstance(loaded, dict):
         raise ValueError(f"Suite file {path} is not a mapping.")
+    data: dict[object, object] = loaded # type: ignore
     typed: dict[str, object] = {}
-    for key, value in data.items():
-        if not isinstance(key, str):
+    for key_obj, value in data.items():
+        if not isinstance(key_obj, str):
             raise ValueError(f"Suite file {path} must use string keys.")
-        typed[key] = value
+        typed[key_obj] = value
     return typed
 
 
