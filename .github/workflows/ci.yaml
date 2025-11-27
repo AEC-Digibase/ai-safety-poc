@@ -1,14 +1,46 @@
 name: safety-ci
-on: [push, pull_request]
+
+on:
+  push:
+  pull_request:
+
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: '3.11'}
-      - run: pip install -r requirements.txt
-      - run: docker compose up --build -d
-      - run: |
-          python evals/run.py | tee .evalcache/latest.jsonl
-          python evals/check.py < .evalcache/latest.jsonl
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Start API via docker compose
+        run: |
+          docker compose up --build -d
+
+      - name: Wait for API health
+        run: |
+          echo "Waiting for API to become healthy..."
+          for i in {1..30}; do
+            if curl -sSf http://localhost:8000/health > /dev/null 2>&1; then
+              echo "API is healthy."
+              exit 0
+            fi
+            echo "Still waiting..."
+            sleep 2
+          done
+          echo "API did not become healthy in time."
+          exit 1
+
+      - name: Run safety evals
+        run: |
+          make eval
+          make gate
