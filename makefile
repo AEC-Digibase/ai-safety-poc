@@ -1,7 +1,6 @@
 .PHONY: up down eval gate prep
 
 up:
-	# Bring up the API container and wait a bit for it to be ready
 	docker compose up --build -d
 	sleep 2
 	echo ">> HEALTH" && curl -s localhost:8000/health || echo "health check failed (API may still be starting)"
@@ -9,17 +8,17 @@ up:
 down:
 	docker compose down
 
-# Pre-flight: create local cache/results dirs so evals never explode on missing paths
 prep:
 	mkdir -p .evalcache
 	mkdir -p evals/results
 
-# Run evals and write latest.jsonl in a guaranteed-existing directory
+# Run evals; capture the path of the results file that run.py prints
 eval: prep
 	# Use bash -o pipefail so a failure in python propagates
-	bash -o pipefail -c 'python evals/run.py | tee .evalcache/latest.jsonl'
+	bash -o pipefail -c 'python evals/run.py' > .evalcache/latest-path.txt
+	echo "Latest eval results at: $$(cat .evalcache/latest-path.txt)"
 
-
-# Safety gate: fail the build if thresholds are violated
+# Read the *real* JSONL file that run.py created and feed it into check.py
 gate:
-	python evals/check.py < .evalcache/latest.jsonl
+	python evals/check.py < "$$(cat .evalcache/latest-path.txt)" && echo "✅ All safety gates passed."
+
