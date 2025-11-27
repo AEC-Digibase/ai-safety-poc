@@ -22,3 +22,4 @@ All evals are defined as YAML suites in `evals/suites/*.yaml`. Each suite is a s
 ```bash
 make eval   # run all suites, write JSONL results
 make gate   # enforce thresholds and fail if any gate is violated
+make report # create report that is added to docs
