@@ -22,3 +22,7 @@ eval: prep
 gate:
 	python evals/check.py < "$$(cat .evalcache/latest-path.txt)" && echo "✅ All safety gates passed."
 
+report:
+	python scripts/summarize.py "$$(cat .evalcache/latest-path.txt)"
+
+
