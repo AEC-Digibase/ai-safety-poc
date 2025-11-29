@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Response
 from pydantic import BaseModel
 from typing import Optional
+from backends import model_backend
 import re, uuid
 from prometheus_client import Counter, Summary, \
  generate_latest, CONTENT_TYPE_LATEST
@@ -40,8 +41,9 @@ async def generate(req: GenRequest):
         PII_REDACTIONS.inc()
     prompt = new_prompt
     # --- MODEL BACKEND (start with a safe stub) ---
-    # Replace this block with a call to a real local model later
-    output = safe_stub(prompt, policy=req.policy)
+    # This is when using a stub. Below is a call to local model
+    # output = safe_stub(prompt, policy=req.policy) 
+    output = model_backend(prompt, policy=req.policy) 
     return {
         "id": str(uuid.uuid4()),
         "model": "stub-0.1",
