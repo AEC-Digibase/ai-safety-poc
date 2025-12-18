@@ -1,7 +1,35 @@
 services:
   api:
     build: .
-    ports: ["8000:8000"]
+    ports:
+      - "8000:8000"
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel:4318
-    depends_on: []
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3:8b
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+
+    # 🔥 HEALTHCHECK: tells Compose when Ollama is ready
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+      start_period: 5s
+# Define the named volume at the top level
+volumes:
+  ollama-data:
+    # Using the default driver is often fine; an empty declaration {} is common
+    driver: local
+    # If you had pre-created the volume with `docker volume create`, you would add:
+    # external: true 

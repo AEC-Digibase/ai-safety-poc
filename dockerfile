@@ -1,18 +1,21 @@
-FROM python:3.11-slim
+FROM python:3.11-slim-bullseye
+
+RUN apt-get update
+RUN apt-get -y install curl
 
 WORKDIR /app
 
-# Install deps first (layer cache-friendly)
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the project (api, evals, scripts, etc.)
+# Copy the whole project so evals/scripts are available in the container
 COPY . .
 
-# Just in case, ensure entrypoint is executable
+# If you use an entrypoint script, keep this
 RUN chmod +x api/run.sh api/entrypoint.sh
 
 EXPOSE 8000
 
-# Use the entrypoint that does pre-flight and then starts the API
 CMD ["bash", "api/entrypoint.sh"]
+# or, if you don't use entrypoint.sh:
+# CMD ["bash", "api/run.sh"]
