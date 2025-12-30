@@ -6,6 +6,7 @@ mkdir -p /app/.evalcache
 mkdir -p /app/evals/results
 
 echo "[entrypoint] Prepared .evalcache and evals/results"
+ls -ltr
 
 # Hand off to the original API runner
-exec bash /app/api/run.sh
+exec bash ./api/run.sh

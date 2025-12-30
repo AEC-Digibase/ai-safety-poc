@@ -1,18 +1,30 @@
 services:
   api:
-    build: .
+    build:
+      context:  .
+      dockerfile: dockerfile.api
     ports:
       - "8000:8000"
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel:4318
       - OLLAMA_BASE_URL=http://ollama:11434
       - OLLAMA_MODEL=llama3:8b
+    
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+        interval: 5s
+        timeout: 2s
+        retries: 20
+        start_period: 5s
+
     depends_on:
       ollama:
         condition: service_healthy
 
   ollama:
-    image: ollama/ollama:latest
+    build:
+      context:  .
+      dockerfile: dockerfile.ollama
     restart: unless-stopped
     ports:
       - "11434:11434"
@@ -25,7 +37,7 @@ services:
       interval: 5s
       timeout: 2s
       retries: 20
-      start_period: 5s
+      start_period: 10s
 # Define the named volume at the top level
 volumes:
   ollama-data:
